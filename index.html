@@ -7,204 +7,15 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;800&family=Syne:wght@400;600;800&display=swap" rel="stylesheet">
-    
-    <style>
-        :root {
-            --bg-color: #0a0a0a;
-            --text-main: #f4f4f5;
-            --text-muted: #a1a1aa;
-            --accent: #da2c48;
-            --border: rgba(255, 255, 255, 0.1);
-            --font-display: 'Syne', sans-serif;
-            --font-body: 'Inter', sans-serif;
-            --modal-bg: #121212;
-            --transition: all 0.6s cubic-bezier(0.19, 1, 0.22, 1);
-            --padd-side: 4rem;
-        }
-
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        html { scroll-behavior: smooth; }
-        body { background-color: var(--bg-color); color: var(--text-main); font-family: var(--font-body); overflow-x: hidden; cursor: none; -webkit-font-smoothing: antialiased; }
-        body.modal-open { overflow: hidden; height: 100vh; }
-        a { color: var(--text-main); text-decoration: none; transition: var(--transition); }
-
-        /* CURSEUR */
-        .cursor { position: fixed; top: 0; left: 0; pointer-events: none; z-index: 99999; transform: translate(-2px, -24px); }
-        .cursor svg { width: 24px; height: 24px; color: var(--text-main); filter: drop-shadow(0px 2px 4px rgba(0,0,0,0.5)); transition: transform 0.2s ease, color 0.2s ease; transform-origin: bottom left; }
-        .cursor.hovered svg { color: var(--accent); transform: scale(1.2) rotate(-10deg); }
-
-        /* POPUP D'ENTRÉE */
-        .welcome-modal {
-            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-            background: rgba(0, 0, 0, 0.9); z-index: 2000;
-            display: flex; justify-content: center; align-items: center;
-            opacity: 0; visibility: hidden; transition: 0.6s; backdrop-filter: blur(20px);
-        }
-        .welcome-modal.active { opacity: 1; visibility: visible; }
-        .welcome-content {
-            background: #1c1c1f; padding: 3.5rem; border-radius: 32px; border: 1px solid var(--border);
-            max-width: 500px; width: 90%; text-align: center; position: relative; color: white;
-        }
-        .insta-link { display: block; background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888); color: white; padding: 1.2rem; border-radius: 14px; margin-bottom: 2rem; font-weight: 800; }
-        .close-welcome { position: absolute; top: 1.5rem; right: 1.5rem; color: var(--text-muted); font-size: 2rem; border: none; background: none; cursor: pointer; }
-
-        /* NAVIGATION & BURGER */
-        nav { position: fixed; top: 0; width: 100%; padding: 2rem var(--padd-side); display: flex; justify-content: space-between; align-items: center; z-index: 1000; transition: var(--transition); }
-        nav.scrolled { padding: 1rem var(--padd-side); background: rgba(10, 10, 10, 0.8); backdrop-filter: blur(10px); border-bottom: 1px solid var(--border); }
-        .logo { display: flex; flex-direction: column; line-height: 1; z-index: 1100; }
-        .logo-main { font-family: var(--font-display); font-weight: 800; font-size: 1.2rem; letter-spacing: 0.5px; }
-        .logo-main span { color: var(--accent); }
-        .logo-sub { font-size: 0.6rem; text-transform: uppercase; font-weight: 600; letter-spacing: 3px; color: var(--accent); opacity: 0; transform: translateY(-5px); transition: var(--transition); margin-top: 4px; }
-        nav.scrolled .logo-sub { opacity: 1; transform: translateY(0); font-size: 0.75rem; }
-
-        .nav-links { display: flex; gap: 2.5rem; }
-        .nav-links a { font-size: 0.85rem; text-transform: uppercase; font-weight: 700; letter-spacing: 1.5px; }
-        .nav-links a:hover { color: var(--accent); }
-
-        .burger-btn { display: none; background: none; border: none; cursor: pointer; z-index: 1100; width: 45px; height: 24px; position: relative; }
-        .burger-line { position: absolute; left: 0; height: 2px; background: white; transition: var(--transition); }
-        .line-top { top: 0; width: 100%; }
-        .line-bottom { bottom: 0; width: 65%; right: 0; left: auto; background: var(--accent); }
-        .burger-btn.active .line-top { transform: translateY(11px) rotate(45deg); }
-        .burger-btn.active .line-bottom { transform: translateY(-11px) rotate(-45deg); width: 100%; background: white; }
-
-        /* MENU MOBILE */
-        .mobile-nav { position: fixed; top: 0; right: -100%; width: 100%; height: 100vh; background: #000; z-index: 999; display: flex; flex-direction: column; justify-content: space-between; padding: 10rem 2.5rem 4rem 2.5rem; transition: var(--transition); }
-        .mobile-nav.active { right: 0; }
-        .mobile-main-links { display: flex; flex-direction: column; gap: 1.5rem; }
-        .mobile-nav a.menu-item { font-family: var(--font-display); font-size: 2.5rem; font-weight: 800; text-transform: uppercase; opacity: 0; transform: translateX(30px); }
-        .mobile-nav.active a.menu-item { opacity: 1; transform: translateX(0); }
-        .mobile-nav-footer { border-top: 1px solid var(--border); padding-top: 2rem; opacity: 0; transform: translateY(20px); transition: 0.5s 0.5s; }
-        .mobile-nav.active .mobile-nav-footer { opacity: 1; transform: translateY(0); }
-
-        /* HERO - REFFINÉ */
-        .hero { height: 100vh; display: flex; flex-direction: column; justify-content: center; padding: 0 var(--padd-side); position: relative; overflow: hidden; z-index: 1; }
-        .hero::before { content: ""; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(rgba(10, 10, 10, 0.4), rgba(10, 10, 10, 0.4)), url('IMG_9414.jpg'); background-size: cover; background-position: center center; opacity: 0.3; z-index: -1; pointer-events: none; }
-        .hero-title { font-family: var(--font-display); font-size: clamp(1.8rem, 4vw, 4rem); font-weight: 800; line-height: 1.1; text-transform: uppercase; letter-spacing: -0.5px; }
-        .hero-title span { color: var(--accent); font-weight: 300; font-size: clamp(1.4rem, 3vw, 2.8rem); display: block; margin-top: 0.2rem; text-transform: none; }
-        .hero-subtitle { font-size: 1rem; color: var(--text-muted); margin-top: 1.2rem; font-weight: 400; letter-spacing: 1px; }
-        .hero-cta { margin-top: 2rem; display: inline-flex; align-items: center; gap: 10px; width: max-content; padding: 0.9rem 2.2rem; background: var(--accent); color: white; font-family: var(--font-display); font-weight: 800; font-size: 0.8rem; text-transform: uppercase; border-radius: 100px; border: none; cursor: pointer; transition: var(--transition); }
-        .hero-cta svg { width: 18px; height: 18px; fill: currentColor; }
-        .hero-cta:hover { transform: scale(1.05); background: white; color: black; }
-
-        /* SECTIONS GENERAL */
-        .work, .social-section, .resume-section, .contact { padding: 8rem var(--padd-side); }
-        .section-title { font-family: var(--font-display); font-size: clamp(2rem, 3vw, 3rem); margin-bottom: 4rem; border-bottom: 1px solid var(--border); padding-bottom: 1.5rem; text-transform: uppercase; }
-
-        /* GRIDS RESPONSIVE */
-        .project-grid, .social-grid, .grid-resume { display: grid; grid-template-columns: repeat(2, 1fr); gap: 3rem; }
-
-        /* PROJETS */
-        .img-wrapper { overflow: hidden; border-radius: 16px; aspect-ratio: 1/1; background: #151518; border: 1px solid var(--border); }
-        .img-wrapper img { width: 100%; height: 100%; object-fit: cover; transition: transform 1.2s cubic-bezier(0.2, 1, 0.3, 1); }
-        .project-card:hover img { transform: scale(1.05); }
-
-        /* RÉSEAUX DESIGN CSS */
-        .social-card { 
-            position: relative; height: 350px; border-radius: 24px; border: 1px solid var(--border); 
-            background: linear-gradient(145deg, #151518, #0a0a0a); cursor: pointer;
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
-            overflow: hidden; text-align: center; padding: 2rem;
-        }
-        .social-card::after { content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: var(--accent); transform: translateY(100%); transition: var(--transition); z-index: 1; }
-        .social-card:hover::after { transform: translateY(0); }
-        .social-card h4 { font-family: var(--font-display); font-size: 2.5rem; font-weight: 800; z-index: 2; position: relative; transition: 0.4s; }
-        .social-card p { font-size: 0.9rem; color: var(--text-muted); z-index: 2; position: relative; margin-top: 10px; transition: 0.4s; }
-        .social-card:hover h4, .social-card:hover p { color: #fff; }
-
-        /* PARCOURS */
-        .resume-item { margin-bottom: 3.5rem; border-left: 2px solid var(--border); padding-left: 2rem; transition: var(--transition); }
-        .resume-item:hover { border-color: var(--accent); }
-        .resume-date { color: var(--accent); font-weight: 800; font-size: 0.85rem; letter-spacing: 1.5px; }
-        .resume-job { font-family: var(--font-display); font-size: 1.6rem; margin: 0.5rem 0; font-weight: 600; }
-        .cv-btn { display: inline-flex; align-items: center; justify-content: center; padding: 1.2rem 3rem; background: #fff; border: none; border-radius: 100px; font-family: var(--font-display); font-size: 1rem; font-weight: 900; color: #000; transition: var(--transition); cursor: pointer; margin-top: 4rem; }
-
-        /* BANDEAU DÉFILANT */
-        .marquee-wrapper { background: #000; padding: 4rem 0; overflow: hidden; white-space: nowrap; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
-        .marquee { display: inline-block; animation: scrollLeft 30s linear infinite; }
-        .marquee span { font-family: var(--font-display); font-size: 4rem; font-weight: 800; text-transform: uppercase; margin-right: 4rem; color: transparent; -webkit-text-stroke: 1px rgba(255,255,255,0.2); }
-        @keyframes scrollLeft { from { transform: translateX(0); } to { transform: translateX(-50%); } }
-
-        /* CONTACT REVEAL PREMIUM */
-        .contact { text-align: center; }
-        .reveal-container { display: flex; flex-direction: column; align-items: center; gap: 1.5rem; width: 100%; }
-        .reveal-box {
-            background: #fff; color: #000; border-radius: 100px;
-            cursor: pointer; overflow: hidden; position: relative; 
-            height: 65px; width: 100%; max-width: 450px;
-            display: flex; align-items: center; justify-content: center;
-            transition: max-width 0.5s cubic-bezier(0.19, 1, 0.22, 1), background 0.3s, transform 0.3s;
-        }
-        .reveal-box:hover { transform: translateY(-5px); background: #f0f0f0; }
-        .reveal-box.active { max-width: 550px; background: var(--accent); color: #fff; }
-        .reveal-box span { position: absolute; font-family: var(--font-display); font-weight: 800; text-transform: uppercase; white-space: nowrap; transition: transform 0.6s cubic-bezier(0.19, 1, 0.22, 1), opacity 0.4s; }
-        .info-label { font-size: 0.9rem; letter-spacing: 1.5px; }
-        .info-hidden { font-size: clamp(0.7rem, 2vw, 1rem); transform: translateY(50px); opacity: 0; text-transform: none; }
-        .reveal-box.active .info-label { transform: translateY(-50px); opacity: 0; }
-        .reveal-box.active .info-hidden { transform: translateY(0); opacity: 1; }
-
-        /* FOOTER FIDÈLE */
-        footer { padding: 6rem var(--padd-side) 4rem var(--padd-side); background: #000; border-top: 1px solid var(--border); display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 4rem; }
-        .footer-brand .footer-logo { font-family: var(--font-display); font-weight: 800; font-size: 1.5rem; margin-bottom: 1rem; }
-        .footer-brand .footer-logo span { color: var(--accent); }
-        .footer-brand p { color: var(--text-muted); font-size: 0.9rem; line-height: 1.6; max-width: 320px; text-align: left; }
-        .footer-col h5 { font-family: var(--font-display); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 2px; color: var(--accent); margin-bottom: 2rem; }
-        .footer-col ul { list-style: none; text-align: left; }
-        .footer-col li { margin-bottom: 1rem; }
-        .footer-col a { color: var(--text-muted); font-size: 0.9rem; }
-        .footer-col a:hover { color: #fff; }
-        .footer-bottom { grid-column: 1 / -1; margin-top: 4rem; padding-top: 3rem; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; color: rgba(255,255,255,0.2); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1.5px; }
-
-        /* MODALES */
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.95); z-index: 2000; display: flex; justify-content: center; align-items: center; opacity: 0; visibility: hidden; transition: 0.5s; backdrop-filter: blur(15px); }
-        .modal-overlay.active { opacity: 1; visibility: visible; }
-        .modal-content { background: var(--modal-bg); width: 95%; max-width: 1300px; height: 90vh; border-radius: 24px; overflow-y: auto; padding: 4rem 2rem; border: 1px solid var(--border); position: relative; }
-        .modal-close { position: sticky; top: 0; float: right; background: var(--accent); border: none; color: white; width: 50px; height: 50px; border-radius: 50%; font-size: 1.5rem; z-index: 100; cursor: pointer; }
-        .image-stack img, .gallery-grid img { width: 100%; border-radius: 12px; border: 1px solid var(--border); display: block; margin-bottom: 1.5rem; }
-        .gallery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem; }
-
-        @media (max-width: 768px) {
-            :root { --padd-side: 1.5rem; }
-            .nav-links { display: none; }
-            .burger-btn { display: block; }
-            .project-grid, .social-grid, .grid-resume { grid-template-columns: 1fr; }
-            footer { grid-template-columns: 1fr; gap: 3rem; }
-            .footer-bottom { flex-direction: column; gap: 1.5rem; text-align: center; }
-            .social-card { height: 250px; }
-            .hero-cta { width: 100%; justify-content: center; }
-            .cursor { display: none; }
-            body { cursor: auto; }
-        }
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
-    <div class="welcome-modal" id="welcomeModal">
-        <div class="welcome-content">
-            <button class="close-welcome" onclick="closeWelcome()">&times;</button>
-            <h2 style="font-family: var(--font-display); font-size: 2rem; margin-bottom: 2rem;">Prêt à marquer les esprits ?</h2>
-            <a href="https://www.instagram.com/florian.b93tsz" target="_blank" class="insta-link">INSTAGRAM @florian.b93tsz</a>
-            <div style="margin-top: 1rem; border-top: 1px solid var(--border); padding-top: 1.5rem;">
-                <p style="color: var(--text-muted); font-size: 1rem; margin-bottom: 1rem;">Laissez votre numéro pour un rappel :</p>
-                <input type="tel" placeholder="06 .. .. .. .." id="userPhone" style="background:#000; border:1px solid var(--border); padding:1rem; border-radius:12px; color:#fff; width:100%; text-align:center; margin-bottom:1rem; outline:none;">
-                <button onclick="submitPhone()" style="background:#fff; color:#000; border:none; padding:1rem; width:100%; border-radius:12px; font-weight:900; cursor:pointer;">ENVOYER</button>
-            </div>
-        </div>
-    </div>
 
     <div class="mobile-nav" id="mobileNav">
         <div class="mobile-main-links">
             <a href="#work" class="menu-item" onclick="toggleMenu()">Projets</a>
             <a href="#resume" class="menu-item" onclick="toggleMenu()">Parcours</a>
             <a href="#contact" class="menu-item" onclick="toggleMenu()">Contact</a>
-        </div>
-        <div class="mobile-nav-footer">
-            <div style="display: flex; gap: 1.5rem; margin-bottom: 2rem;">
-                <a href="https://www.instagram.com/florian.b93tsz" target="_blank" style="color: var(--accent); font-weight: 700; font-size: 0.8rem;">Instagram</a>
-                <a href="https://www.linkedin.com/in/florian-bonnet-b82018198/" target="_blank" style="color: var(--accent); font-weight: 700; font-size: 0.8rem;">LinkedIn</a>
-            </div>
-            <h4 style="font-family: var(--font-display); font-size: 1.2rem; text-transform: uppercase;">Florian B<span>.</span></h4>
-            <p style="font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase;">Graphiste & D.A.</p>
         </div>
     </div>
 
@@ -231,7 +42,7 @@
     <section class="hero">
         <h1 class="hero-title">Florian B.<span>Graphiste</span></h1>
         <p class="hero-subtitle">Direction Artistique & Branding.</p>
-        <button class="hero-cta" onclick="openWelcome()">
+        <button class="hero-cta" onclick="handleReveal(document.getElementById('contact-btn'))">
             <svg viewBox="0 0 24 24"><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></svg>
             Je veux être appelé
         </button>
@@ -240,14 +51,28 @@
     <section id="work" class="work">
         <h2 class="section-title">Sélection</h2>
         <div class="project-grid">
-            <div class="project-card hover-target" onclick="openModal('cover-modal')"><div class="img-wrapper"><img src="cover-industrie-badara.jpg"></div><div class="project-info"><h3>Cover Art Direction</h3></div></div>
-            <div class="project-card hover-target" onclick="openModal('oofti-modal')"><div class="img-wrapper"><img src="oofti_logo_couleurs.jpg"></div><div class="project-info"><h3>oofti.fr</h3></div></div>
-            <div class="project-card hover-target" onclick="openModal('basicfit-modal')"><div class="img-wrapper"><img src="basicfit_logo_orange.jpg"></div><div class="project-info"><h3>Basic'Fit</h3></div></div>
-            <div class="project-card hover-target" onclick="openModal('bnp-modal')"><div class="img-wrapper"><img src="bnp_logo_vert.jpg"></div><div class="project-info"><h3>BNP Paribas</h3></div></div>
-            <div class="project-card hover-target" onclick="openModal('mllepitch-modal')"><div class="img-wrapper"><img src="mllepitch_mockup_panneau.jpg"></div><div class="project-info"><h3>Mlle Pitch Awards</h3></div></div>
-            <div class="project-card hover-target" onclick="openModal('finish-modal')"><div class="img-wrapper"><img src="finish_presentation.jpg"></div><div class="project-info"><h3>Finish Packaging</h3></div></div>
-            <div class="project-card hover-target" onclick="openModal('photo-modal')"><div class="img-wrapper"><img src="Florian_Projet_Img_40.jpg"></div><div class="project-info"><h3>Photographies</h3></div></div>
-        </div>
+            <div class="project-card hover-target" onclick="openModal('courtepaille-modal')">
+                <div class="img-wrapper"><img src="courtepaille-facade-cover.jpg"></div>
+                <div class="project-info">
+                    <h3>Courtepaille</h3>
+                    <span>Branding</span>
+                </div>
+            </div>
+            <div class="project-card hover-target" onclick="openModal('cover-modal')">
+                <div class="img-wrapper"><img src="cover-industrie-badara.jpg"></div>
+                <div class="project-info">
+                    <h3>Cover Art Direction</h3>
+                    <span>Music visuals</span>
+                </div>
+            </div>
+            <div class="project-card hover-target" onclick="openModal('oofti-modal')">
+                <div class="img-wrapper"><img src="oofti_logo_couleurs.jpg"></div>
+                <div class="project-info">
+                    <h3>oofti.fr</h3>
+                    <span>Branding</span>
+                </div>
+            </div>
+            </div>
     </section>
 
     <section class="social-section">
@@ -264,31 +89,8 @@
         </div>
     </section>
 
-    <section id="resume" class="resume-section">
-        <h2 class="section-title">Parcours</h2>
-        <div class="grid-resume">
-            <div>
-                <h3 style="color: var(--accent); margin-bottom: 2.5rem; font-size: 0.85rem; letter-spacing: 2px; font-weight: 800;">EXPÉRIENCES</h3>
-                <div class="resume-item"><span class="resume-date">Oct. 2024 — Aujourd'hui</span><h4 class="resume-job">Graphiste</h4><p class="resume-company">oofti.fr | Montreuil</p></div>
-                <div class="resume-item"><span class="resume-date">Janv. 2023 — Aujourd'hui</span><h4 class="resume-job">D.A & Manager Com'</h4><p class="resume-company">Indépendant | Musique & Culture</p></div>
-                <div class="resume-item"><span class="resume-date">Avr. 2020 — Aujourd'hui</span><h4 class="resume-job">Fondateur / CM</h4><p class="resume-company">DailyRapFrance | Média</p></div>
-                <div class="resume-item"><span class="resume-date">Sept. 2023 — Fév. 2024</span><h4 class="resume-job">Chef de Projet</h4><p class="resume-company">Instincts Productions | Paris</p></div>
-                <div class="resume-item"><span class="resume-date">Sept. 2022 — Août 2023</span><h4 class="resume-job">Graphiste</h4><p class="resume-company">SIM Consulting | Bry sur Marne</p></div>
-                <div class="resume-item"><span class="resume-date">Nov. 2020 — Janv. 2021</span><h4 class="resume-job">Assistant Créateur e-learning</h4><p class="resume-company">Total Energies | La Défense</p></div>
-                <div class="resume-item"><span class="resume-date">Janv. 2020</span><h4 class="resume-job">Assistant DA</h4><p class="resume-company">Publicis Groupe | Paris</p></div>
-            </div>
-            <div>
-                <h3 style="color: var(--accent); margin-bottom: 2rem; font-size: 0.85rem; letter-spacing: 2px; font-weight: 800;">ÉTUDES</h3>
-                <div class="resume-item"><span class="resume-date">2021 — 2024</span><h4 class="resume-job">Bachelor Design Graphique</h4><p class="resume-company">MJM Graphic Design | Mention Très Bien</p></div>
-                <div class="resume-item"><span class="resume-date">2018 — 2021</span><h4 class="resume-job">Bac Pro Com' Visuelle</h4><p class="resume-company">Claude Nicolas Ledoux | BEP Métiers d'Arts | Mention Bien</p></div>
-            </div>
-        </div>
-        <div style="text-align: center; width: 100%;"><a href="https://drive.google.com/file/d/12B9RhtuKZW0O7z9iw8VuoWPpgFD4v9l7/view?usp=sharing" target="_blank" class="cv-btn hover-target">TÉLÉCHARGER MON CV</a></div>
-    </section>
-
     <div class="marquee-wrapper">
         <div class="marquee">
-            <span>Photoshop</span><span>Illustrator</span><span>After Effects</span><span>Premiere Pro</span><span>InDesign</span><span>Branding</span><span>Cover Art</span><span>UI/UX</span>
             <span>Photoshop</span><span>Illustrator</span><span>After Effects</span><span>Premiere Pro</span><span>InDesign</span><span>Branding</span><span>Cover Art</span><span>UI/UX</span>
         </div>
     </div>
@@ -300,7 +102,7 @@
                 <span class="info-label">DÉVOILER L'E-MAIL</span>
                 <span class="info-hidden">florian.bonnet17@hotmail.fr</span>
             </div>
-            <div class="reveal-box hover-target" onclick="handleReveal(this)">
+            <div id="contact-btn" class="reveal-box hover-target" onclick="handleReveal(this)">
                 <span class="info-label">DÉVOILER LE NUMÉRO</span>
                 <span class="info-hidden">+33 6 46 20 78 25</span>
             </div>
@@ -310,7 +112,7 @@
     <footer>
         <div class="footer-brand">
             <div class="footer-logo">FLORIAN B<span>.</span></div>
-            <p>Directeur Artistique & Graphiste basé à Paris. Création d'identités fortes et d'univers visuels percutants.</p>
+            <p>Directeur Artistique & Graphiste basé à Paris. Création d'identités fortes.</p>
         </div>
         <div class="footer-col">
             <h5>Navigation</h5>
@@ -318,7 +120,6 @@
                 <li><a href="#work">Projets</a></li>
                 <li><a href="#resume">Parcours</a></li>
                 <li><a href="#contact">Contact</a></li>
-                <li><a href="#" onclick="openWelcome()">Rappel</a></li>
             </ul>
         </div>
         <div class="footer-col">
@@ -335,27 +136,38 @@
         </div>
     </footer>
 
-    <div class="modal-overlay" id="cover-modal"><div class="modal-content"><button class="modal-close" onclick="closeModal('cover-modal')">&times;</button><div class="modal-header"><h2 style="font-family: var(--font-display); margin-bottom: 2rem;">Cover Art Direction</h2></div><div class="gallery-grid"><img src="cover-industrie-badara.jpg"><img src="Badara - Mini moi cover v3.png"><img src="BENEF-MAFIA-ITALIENNE-v2.jpg"><img src="BADARA-VIDAL-COVER-V1.jpg"><img src="modele-benef-vf.jpg"><img src="BENEF - NO LIMIT.jpg"><img src="pression cover vf.png"><img src="CoverBENEFToleranceZéro.png"><img src="BENEF COVER TOLERANCE 2.png"><img src="cover badara fuis vf rs.png"><img src="BADARA - CHAQUE FOIS.png"><img src="Cover BADARA - ESPRIT.jpg"><img src="BENEF - IA COVER VF2.png"><img src="JAYCE-NOUCHI-FROM-USA-V1.jpg"><img src="JAYCE-NOUCHI-FROM-USA-V4.jpg"><img src="JAYCE-NOUCHI-FROM-USA-TRACKLIST.jpg"><img src="COVER LA MEME BADARA.jpg"><img src="COVER-LE-TEMPS-BENEF.jpg"></div></div></div>
-    <div class="modal-overlay" id="oofti-modal"><div class="modal-content"><button class="modal-close" onclick="closeModal('oofti-modal')">&times;</button><div class="image-stack"><img src="oofti.fr avant après florian bPlan de travail 1.png"><img src="oofti_logo_comparatif.jpg"><img src="oofti_logo_couleurs.jpg"><img src="oofti_typo_detail.jpg.jpg"><img src="oofti_mockup_cartes.jpg"></div><div class="gallery-grid"><img src="Post oofti.fr - Edge E2 - 1.jpg"><img src="Post oofti.fr - Edge E2 - 2.jpg"><img src="Post oofti.fr - Edge E2 - 3.jpg"><img src="Post oofti.fr - Edge mini - 1.jpg"><img src="Post oofti.fr - Edge mini - 2.jpg"><img src="Post oofti.fr - Edge mini - 3.jpg"></div></div></div>
-    <div class="modal-overlay" id="basicfit-modal"><div class="modal-content"><button class="modal-close" onclick="closeModal('basicfit-modal')">&times;</button><div class="image-stack"><img src="basicfit_logo_orange.jpg"><img src="basicfit_planche_typo.jpg"><img src="basicfit_mockup_enseigne.jpg"><img src="basicfit_mockup_halteres.jpg"><img src="basicfit_comparaison.jpg"></div></div></div>
-    <div class="modal-overlay" id="bnp-modal"><div class="modal-content"><button class="modal-close" onclick="closeModal('bnp-modal')">&times;</button><div class="image-stack"><img src="bnp_logo_vert.jpg"><img src="bnp_logo_blanc.jpg"><img src="bnp_mockup_cb.jpg"><img src="bnp_mockup_app.jpg"><img src="bnp_mockup_enseigne.jpg"></div></div></div>
-    <div class="modal-overlay" id="mllepitch-modal"><div class="modal-content"><button class="modal-close" onclick="closeModal('mllepitch-modal')">&times;</button><div class="image-stack"><img src="mllepitch_mockup_panneau.jpg"><img src="mllepitch_visuel_1.jpg"><img src="mllepitch_visuel_2.jpg"><img src="mllepitch_visuel_3.jpg"><img src="mllepitch_mockup_abribus.jpg"><img src="mllepitch_mockup_metro.jpg"><img src="mllepitch_mockup_affichage.jpg"></div></div></div>
-    <div class="modal-overlay" id="finish-modal"><div class="modal-content"><button class="modal-close" onclick="closeModal('finish-modal')">&times;</button><div class="image-stack"><img src="finish_presentation.jpg"><img src="finish_comparaison.jpg"><img src="finish_gabarit.jpg"><img src="finish_deplié.jpg"><img src="finish_mockup_face.jpg"><img src="finish_mockup_cote.jpg"><img src="finish_mockup_dos.jpg"><img src="finish_mockup_ouvert_1.jpg"><img src="finish_mockup_ouvert_2.jpg"><img src="finish_coulisses.jpg"></div></div></div>
-    <div class="modal-overlay" id="photo-modal"><div class="modal-content"><button class="modal-close" onclick="closeModal('photo-modal')">&times;</button><div class="image-stack"><img src="Florian_Projet_Img_40.jpg"><img src="Florian_Projet_Img_2.jpg"><img src="Florian_Projet_Img_3.jpg"><img src="Florian_Projet_Img_4.jpg"><img src="Florian_Projet_Img_5.jpg"><img src="Florian_Projet_Img_6.jpg"><img src="Florian_Projet_Img_7.jpg"><img src="Florian_Projet_Img_8.jpg"><img src="Florian_Projet_Img_9.jpg"><img src="Florian_Projet_Img_10.jpg"><img src="Florian_Projet_Img_11.jpg"><img src="Florian_Projet_Img_12.jpg"><img src="Florian_Projet_Img_13.jpg"><img src="Florian_Projet_Img_14.jpg"><img src="Florian_Projet_Img_15.jpg"><img src="Florian_Projet_Img_16.jpg"><img src="Florian_Projet_Img_17.jpg"><img src="Florian_Projet_Img_18.jpg"><img src="Florian_Projet_Img_19.jpg"><img src="Florian_Projet_Img_20.jpg"><img src="Florian_Projet_Img_21.jpg"><img src="Florian_Projet_Img_22.jpg"><img src="Florian_Projet_Img_23.jpg"><img src="Florian_Projet_Img_24.jpg"><img src="Florian_Projet_Img_25.jpg"><img src="Florian_Projet_Img_26.jpg"><img src="Florian_Projet_Img_27.jpg"><img src="Florian_Projet_Img_28.jpg"><img src="Florian_Projet_Img_29.jpg"><img src="Florian_Projet_Img_30.jpg"><img src="Florian_Projet_Img_31.jpg"><img src="Florian_Projet_Img_32.jpg"><img src="Florian_Projet_Img_33.jpg"><img src="Florian_Projet_Img_34.jpg"><img src="Florian_Projet_Img_35.jpg"><img src="Florian_Projet_Img_36.jpg"><img src="Florian_Projet_Img_37.jpg"><img src="Florian_Projet_Img_38.jpg"><img src="Florian_Projet_Img_39.jpg"><img src="Florian_Projet_Img_41.jpg"><img src="Florian_Projet_Img_42.jpg"><img src="Florian_Projet_Img_43.jpg"><img src="Florian_Projet_Img_44.jpg"><img src="Florian_Projet_Img_45.jpg"><img src="Florian_Projet_Img_46.jpg"><img src="Florian_Projet_Img_47.jpg"></div></div></div>
+    <div class="modal-overlay" id="courtepaille-modal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal('courtepaille-modal')">&times;</button>
+            <div class="modal-header"><h2 style="font-family: var(--font-display); margin-bottom: 2rem;">Courtepaille Branding</h2></div>
+            <div class="gallery-grid">
+                <img src="courtepaille-identite-visuelle.jpg">
+                <img src="courtepaille-facade-cover.jpg">
+                <img src="courtepaille-packaging-mockup.jpg">
+                <img src="courtepaille-branding-board.jpg">
+                <img src="courtepaille-affiche-promo.jpg">
+                <img src="courtepaille-interieur-design.jpg">
+                <img src="courtepaille-ambiance-lumineuse.jpg">
+                <img src="courtepaille-campagne-burger.jpg">
+                <img src="courtepaille-menu-digital.jpg">
+                <img src="courtepaille-tablier-staff.jpg">
+                <img src="courtepaille-salle-restaurant.jpg">
+                <img src="courtepaille-menu-print-1.jpg">
+                <img src="courtepaille-menu-print-2.jpg">
+                <img src="courtepaille-art-table-1.jpg">
+                <img src="courtepaille-art-table-2.jpg">
+            </div>
+        </div>
+    </div>
 
     <script>
-        window.onload = () => { setTimeout(() => { document.getElementById('welcomeModal').classList.add('active'); document.body.classList.add('modal-open'); }, 800); };
         function toggleMenu() { document.getElementById('burgerBtn').classList.toggle('active'); document.getElementById('mobileNav').classList.toggle('active'); document.body.classList.toggle('modal-open'); }
-        function openWelcome() { document.getElementById('welcomeModal').classList.add('active'); document.body.classList.add('modal-open'); }
-        function closeWelcome() { document.getElementById('welcomeModal').classList.remove('active'); document.body.classList.remove('modal-open'); }
-        function submitPhone() { const v = document.getElementById('userPhone').value; if(v.length > 5) { alert("C'est noté !"); closeWelcome(); } }
+        function openModal(id) { document.getElementById(id).classList.add('active'); document.body.classList.add('modal-open'); }
+        function closeModal(id) { document.getElementById(id).classList.remove('active'); document.body.classList.remove('modal-open'); }
+        function handleReveal(el) { el.classList.add('active'); }
         const cursor = document.getElementById('cursor');
         document.addEventListener('mousemove', (e) => { cursor.style.left = e.clientX + 'px'; cursor.style.top = e.clientY + 'px'; });
-        document.querySelectorAll('.hover-target, a, button, .project-card, .social-card, .reveal-box').forEach(el => { el.addEventListener('mouseenter', () => cursor.classList.add('hovered')); el.addEventListener('mouseleave', () => cursor.classList.remove('hovered')); });
         window.addEventListener('scroll', () => { const n = document.getElementById('navbar'); if (window.scrollY > 50) n.classList.add('scrolled'); else n.classList.remove('scrolled'); });
-        function openModal(id) { const m = document.getElementById(id); if(m) { m.classList.add('active'); document.body.classList.add('modal-open'); } }
-        function closeModal(id) { const m = document.getElementById(id); if(m) { m.classList.remove('active'); document.body.classList.remove('modal-open'); } }
-        function handleReveal(el) { el.classList.add('active'); }
     </script>
 </body>
 </html>
