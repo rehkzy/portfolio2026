@@ -2,172 +2,692 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Florian B. | Graphiste & D.A.</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;800&family=Syne:wght@400;600;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Syne:wght@200;400;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-color: #0a0a0a;
+            --text-main: #f4f4f5;
+            --text-muted: #a1a1aa;
+            --accent: #da2c48;
+            --border: rgba(255, 255, 255, 0.1);
+            --font-display: 'Syne', sans-serif;
+            --font-body: 'Inter', sans-serif;
+            --transition: all 0.6s cubic-bezier(0.19, 1, 0.22, 1);
+            --max-width: 1400px;
+        }
+
+        /* RESET & BASE */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; font-size: 16px; }
+        body { background-color: var(--bg-color); color: var(--text-main); font-family: var(--font-body); overflow-x: hidden; -webkit-font-smoothing: antialiased; }
+        body.modal-open { overflow: hidden; }
+        a { color: inherit !important; text-decoration: none !important; transition: var(--transition); }
+        .container { max-width: var(--max-width); margin: 0 auto; padding: 0 clamp(1.5rem, 5vw, 5rem); }
+
+        /* CURSEUR PINCEAU ROUGE */
+        @media (pointer: fine) {
+            .cursor { position: fixed; top: 0; left: 0; pointer-events: none; z-index: 99999; transform: translate(-2px, -24px); }
+            .cursor svg { width: 24px; height: 24px; color: var(--text-main); transition: 0.2s; }
+            .cursor.hovered svg { color: var(--accent); transform: scale(1.3) rotate(-10deg); }
+        }
+
+        /* POPUP BIENVENUE DESIGN */
+        .welcome-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.96); z-index: 9999; display: flex; justify-content: center; align-items: center; opacity: 0; visibility: hidden; transition: 0.6s cubic-bezier(0.19, 1, 0.22, 1); backdrop-filter: blur(20px); }
+        .welcome-modal.active { opacity: 1; visibility: visible; }
+        .welcome-content { background: #111; padding: 4rem 3rem; border-radius: 32px; border: 1px solid var(--border); max-width: 500px; width: 90%; text-align: center; position: relative; box-shadow: 0 30px 60px rgba(0,0,0,0.5); }
+        .welcome-content h2 { font-family: var(--font-display); font-size: 2.2rem; margin-bottom: 1rem; text-transform: uppercase; font-weight: 800; line-height: 1.1; letter-spacing: -1px; }
+        .welcome-content p { color: var(--text-muted); font-size: 0.95rem; margin-bottom: 2.5rem; line-height: 1.6; }
+        .insta-promo { display: block; background: #fff; color: #000 !important; padding: 1.2rem; border-radius: 16px; margin-bottom: 1.5rem; font-family: var(--font-display); font-weight: 800; text-transform: uppercase; font-size: 0.9rem; letter-spacing: 1px; transition: 0.3s; }
+        .insta-promo:hover { background: var(--accent); color: #fff !important; transform: translateY(-3px); }
+        .phone-reveal-zone { background: rgba(255,255,255,0.03); border: 1px solid var(--border); padding: 1.5rem; border-radius: 20px; }
+        .welcome-input { background: transparent; border: none; padding: 0.5rem; color: #fff; width: 100%; text-align: center; font-size: 1.2rem; font-family: var(--font-display); font-weight: 800; outline: none; margin-bottom: 1rem; border-bottom: 1px solid var(--border); }
+        .welcome-submit { background: var(--accent); color: #fff !important; border: none; padding: 1rem 2rem; width: 100%; border-radius: 12px; font-weight: 900; cursor: pointer; text-transform: uppercase; letter-spacing: 2px; }
+        .close-welcome { position: absolute; top: 1.5rem; right: 2rem; color: var(--text-muted); font-size: 2.5rem; border: none; background: none; cursor: pointer; }
+
+        /* NAVIGATION & HEADER */
+        nav { position: fixed; top: 0; width: 100%; z-index: 1000; transition: var(--transition); padding: 2.5rem 0; }
+        nav.scrolled { background: rgba(10, 10, 10, 0.9); backdrop-filter: blur(20px); border-bottom: 1px solid var(--border); padding: 1.2rem 0; }
+        nav .container { display: flex; justify-content: space-between; align-items: center; }
+        .logo-group { display: flex; flex-direction: column; line-height: 1; }
+        .logo-main { font-family: var(--font-display); font-weight: 800; font-size: 1.3rem; text-transform: uppercase; letter-spacing: -1px; }
+        .logo-main span { color: var(--accent); }
+        .logo-sub { font-size: 0.65rem; text-transform: uppercase; font-weight: 700; letter-spacing: 2px; color: var(--accent); margin-top: 5px; opacity: 0; transform: translateY(-5px); transition: var(--transition); }
+        nav.scrolled .logo-sub { opacity: 1; transform: translateY(0); }
+        .nav-links { display: flex; gap: 2.5rem; }
+        .nav-links a { font-size: 0.8rem; text-transform: uppercase; font-weight: 700; letter-spacing: 1.5px; opacity: 0.6; }
+        .nav-links a:hover { opacity: 1; color: var(--accent) !important; }
+
+        /* HERO - DESIGN AVEC TA PHOTO */
+        .hero { height: 100vh; display: flex; align-items: center; position: relative; width: 100%; overflow: hidden; }
+        .hero::before { 
+            content: ""; position: absolute; inset: 0; 
+            background: linear-gradient(to right, rgba(10,10,10,1) 35%, rgba(10,10,10,0.15) 65%, rgba(10,10,10,0.8) 100%), url('IMG_9414.jpg'); 
+            background-size: cover; background-position: center right; opacity: 1; z-index: -1; 
+        }
+        .hero .container { width: 100%; padding-left: 1.5rem; position: relative; z-index: 1; }
+        .hero-title { font-family: var(--font-display); font-size: clamp(2.5rem, 7vw, 4.5rem); font-weight: 800; line-height: 1; text-transform: uppercase; letter-spacing: -1px; }
+        .hero-title span.red { color: var(--accent); display: block; font-size: 0.5em; margin-top: 0.5rem; letter-spacing: 2px; }
+        .hero-tagline { margin-top: 1rem; font-size: 1.1rem; opacity: 0.7; font-style: italic; color: var(--accent); font-family: var(--font-display); font-weight: 600; }
+        .hero-cta { margin-top: 2rem; display: inline-flex; align-items: center; padding: 1.1rem 2.5rem; background: var(--accent); color: white !important; font-family: var(--font-display); font-weight: 800; font-size: 0.85rem; text-transform: uppercase; border-radius: 100px; border: 2px solid var(--accent); cursor: pointer; }
+
+        /* BANNIÈRE DÉFILANTE */
+        .marquee-wrapper { background: #000; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 1.5rem 0; overflow: hidden; white-space: nowrap; }
+        .marquee-content { display: inline-block; animation: scroll 25s linear infinite; }
+        .marquee-content span { font-family: var(--font-display); font-weight: 800; text-transform: uppercase; font-size: 1.1rem; margin-right: 3rem; }
+        .marquee-content span i { color: var(--accent); font-style: normal; margin-right: 0.6rem; }
+
+        /* PROJETS - NOUVELLE STRUCTURE */
+        .work, .resume-section, .social-section, .contact { padding: 8rem 0; }
+        .section-title { font-family: var(--font-display); font-size: 2.5rem; margin-bottom: 4rem; border-bottom: 1px solid var(--border); padding-bottom: 1rem; text-transform: uppercase; font-weight: 800; }
+        
+        /* Nouvelle grille de projets */
+        .projects-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); gap: 2.5rem; }
+        .project-showcase { border: 1px solid var(--border); border-radius: 20px; overflow: hidden; transition: var(--transition); cursor: pointer; background: rgba(255,255,255,0.02); }
+        .project-showcase:hover { border-color: var(--accent); transform: translateY(-8px); background: rgba(218,44,72,0.05); }
+        .project-header { padding: 2rem; border-bottom: 1px solid var(--border); }
+        .project-title { font-family: var(--font-display); font-size: 1.5rem; font-weight: 800; text-transform: uppercase; margin-bottom: 0.5rem; }
+        .project-type { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 2px; color: var(--accent); font-weight: 700; }
+        .project-gallery { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.5rem; padding: 0.5rem; }
+        .project-gallery img { width: 100%; height: auto; border-radius: 12px; }
+        .project-gallery.single { grid-template-columns: 1fr; }
+        .project-gallery.full { grid-template-columns: 1fr; }
+
+        /* SECTION CONTACT IMPACTANTE */
+        .contact-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 2rem; }
+        .contact-card { 
+            background: linear-gradient(135deg, rgba(218, 44, 72, 0.1) 0%, rgba(218, 44, 72, 0.02) 100%);
+            border: 1px solid var(--border); 
+            padding: 3rem 2.5rem; 
+            border-radius: 24px; 
+            cursor: pointer; 
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+        .contact-card::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+            transition: 0.6s;
+        }
+        .contact-card:hover::before { left: 100%; }
+        .contact-card:hover { 
+            border-color: var(--accent); 
+            transform: translateY(-10px);
+            background: linear-gradient(135deg, rgba(218, 44, 72, 0.15) 0%, rgba(218, 44, 72, 0.05) 100%);
+            box-shadow: 0 20px 40px rgba(218, 44, 72, 0.2);
+        }
+        .contact-card.revealed { background: linear-gradient(135deg, rgba(218, 44, 72, 0.2) 0%, rgba(218, 44, 72, 0.08) 100%); }
+        .contact-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 3px; font-weight: 900; color: var(--accent); margin-bottom: 1.5rem; display: block; }
+        .contact-info-placeholder { font-family: var(--font-display); font-size: 1.3rem; font-weight: 800; text-transform: uppercase; color: var(--text-muted); }
+        .contact-info { 
+            font-family: var(--font-display); 
+            font-size: 1.4rem; 
+            font-weight: 800; 
+            color: var(--accent);
+            word-break: break-all;
+            animation: slideIn 0.4s ease-out;
+        }
+        @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* SECTION RÉSEAUX IMPACTANTE */
+        .social-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; }
+        .social-card { 
+            background: rgba(255, 255, 255, 0.02); 
+            border: 1px solid var(--border); 
+            padding: 2.5rem; 
+            border-radius: 24px; 
+            text-align: center; 
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 220px;
+        }
+        .social-card::before {
+            content: "";
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(218, 44, 72, 0.2) 0%, transparent 70%);
+            opacity: 0;
+            transition: 0.4s;
+        }
+        .social-card:hover::before { opacity: 1; }
+        .social-card:hover { 
+            border-color: var(--accent); 
+            transform: translateY(-12px);
+            background: rgba(218, 44, 72, 0.08);
+        }
+        .social-icon { 
+            font-size: 3rem; 
+            margin-bottom: 1rem;
+            display: block;
+            transition: 0.3s;
+        }
+        .social-card:hover .social-icon { transform: scale(1.2) rotate(-10deg); }
+        .social-card h4 { 
+            font-family: var(--font-display); 
+            text-transform: uppercase; 
+            margin-bottom: 0.5rem; 
+            letter-spacing: 1px;
+            font-size: 1.2rem;
+            font-weight: 800;
+            position: relative;
+            z-index: 1;
+        }
+        .social-card span { 
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            position: relative;
+            z-index: 1;
+        }
+        .social-card:hover span { color: var(--text-main); }
+
+        /* MODALES & GALLERIES */
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.98); z-index: 9999; display: flex; justify-content: center; align-items: center; opacity: 0; visibility: hidden; transition: 0.5s; backdrop-filter: blur(20px); }
+        .modal-overlay.active { opacity: 1; visibility: visible; }
+        .modal-content { background: #121212; width: 95%; max-width: 1200px; height: 90vh; border-radius: 24px; overflow-y: auto; padding: 4rem; border: 1px solid var(--border); position: relative; }
+        .modal-close { position: sticky; top: 0; float: right; background: var(--accent); border: none; color: white; width: 50px; height: 50px; border-radius: 50%; cursor: pointer; font-size: 2rem; z-index: 100; }
+        .image-stack img { width: 100%; border-radius: 12px; margin-bottom: 2rem; display: block; }
+        .gallery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem; }
+        .gallery-grid img { width: 100%; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 1rem; }
+
+        /* FOOTER ÉPURÉ */
+        footer { padding: 6rem 0 3rem; border-top: 1px solid var(--border); background: #000; }
+        .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 4rem; }
+        .footer-logo { font-family: var(--font-display); font-weight: 800; font-size: 1.8rem; text-transform: uppercase; margin-bottom: 1.5rem; }
+        .footer-col h5 { font-family: var(--font-display); color: var(--accent); font-size: 0.85rem; letter-spacing: 3px; margin-bottom: 2.5rem; text-transform: uppercase; font-weight: 800; }
+        .footer-bottom { border-top: 1px solid var(--border); padding-top: 3rem; margin-top: 4rem; display: flex; justify-content: space-between; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 2px; opacity: 0.4; }
+
+        @keyframes scroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+        @media (max-width: 900px) { 
+            .projects-container { grid-template-columns: 1fr; } 
+            .footer-grid { grid-template-columns: 1fr; } 
+            .hero-title { font-size: 2.8rem; } 
+            .project-gallery { grid-template-columns: 1fr !important; }
+        }
+    </style>
 </head>
 <body>
 
-    <div class="mobile-nav" id="mobileNav">
-        <div class="mobile-main-links">
-            <a href="#work" class="menu-item" onclick="toggleMenu()">Projets</a>
-            <a href="#resume" class="menu-item" onclick="toggleMenu()">Parcours</a>
-            <a href="#contact" class="menu-item" onclick="toggleMenu()">Contact</a>
+    <div class="welcome-modal" id="welcomeModal">
+        <div class="welcome-content">
+            <button class="close-welcome" onclick="closeWelcome()">&times;</button>
+            <h2>VOTRE VISION,<br>MON IMPACT.</h2>
+            <p>Directeur Artistique & Graphiste basé à Paris. Créons ensemble des identités qui marquent les esprits.</p>
+            <a href="https://www.instagram.com/florian.b93tsz" target="_blank" class="insta-promo">SUIVRE @florian.b93tsz</a>
+            <div class="phone-reveal-zone">
+                <input type="tel" placeholder="06 .. .. .. .." id="userPhone" class="welcome-input">
+                <button onclick="submitPhone()" class="welcome-submit">ME FAIRE RAPPELER</button>
+            </div>
         </div>
     </div>
 
-    <div class="cursor" id="cursor">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9.06 11.9l8.07-8.06a2.85 2.85 0 1 1 4.03 4.03l-8.06 8.08" /><path d="M7.07 14.94c-1.66 0-3 1.35-3 3.02 0 1.33-2.5 1.52-2 2.02 1.08 1.1 2.49 2.02 4 2.02 2.2 0 4-1.8 4-4.04a3.01 3.01 0 0 0-3-3.02z" /></svg>
-    </div>
+    <div class="cursor" id="cursor"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9.06 11.9l8.07-8.06a2.85 2.85 0 1 1 4.03 4.03l-8.06 8.08"/><path d="M7.07 14.94c-1.66 0-3 1.35-3 3.02 0 1.33-2.5 1.52-2 2.02 1.08 1.1 2.49 2.02 4 2.02 2.2 0 4-1.8 4-4.04a3.01 3.01 0 0 0-3-3.02z"/></svg></div>
 
     <nav id="navbar">
-        <div class="logo">
-            <div class="logo-main">FLORIAN B<span>.</span></div>
-            <div class="logo-sub">Graphiste</div>
+        <div class="container">
+            <div class="logo-group">
+                <div class="logo-main">FLORIAN B<span>.</span></div>
+                <div class="logo-sub">Graphiste</div>
+            </div>
+            <div class="nav-links">
+                <a href="#work">Projets</a>
+                <a href="#resume">Parcours</a>
+                <a href="#contact">Contact</a>
+            </div>
         </div>
-        <div class="nav-links">
-            <a href="#work">Projets</a>
-            <a href="#resume">Parcours</a>
-            <a href="#contact">Contact</a>
-        </div>
-        <button class="burger-btn" id="burgerBtn" onclick="toggleMenu()">
-            <span class="burger-line line-top"></span>
-            <span class="burger-line line-bottom"></span>
-        </button>
     </nav>
 
     <section class="hero">
-        <h1 class="hero-title">Florian B.<span>Graphiste</span></h1>
-        <p class="hero-subtitle">Direction Artistique & Branding.</p>
-        <button class="hero-cta" onclick="handleReveal(document.getElementById('contact-btn'))">
-            <svg viewBox="0 0 24 24"><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></svg>
-            Je veux être appelé
-        </button>
-    </section>
-
-    <section id="work" class="work">
-        <h2 class="section-title">Sélection</h2>
-        <div class="project-grid">
-            <div class="project-card hover-target" onclick="openModal('courtepaille-modal')">
-                <div class="img-wrapper"><img src="courtepaille-facade-cover.jpg"></div>
-                <div class="project-info">
-                    <h3>Courtepaille</h3>
-                    <span>Branding</span>
-                </div>
-            </div>
-            <div class="project-card hover-target" onclick="openModal('cover-modal')">
-                <div class="img-wrapper"><img src="cover-industrie-badara.jpg"></div>
-                <div class="project-info">
-                    <h3>Cover Art Direction</h3>
-                    <span>Music visuals</span>
-                </div>
-            </div>
-            <div class="project-card hover-target" onclick="openModal('oofti-modal')">
-                <div class="img-wrapper"><img src="oofti_logo_couleurs.jpg"></div>
-                <div class="project-info">
-                    <h3>oofti.fr</h3>
-                    <span>Branding</span>
-                </div>
-            </div>
-            </div>
-    </section>
-
-    <section class="social-section">
-        <h2 class="section-title">Réseaux</h2>
-        <div class="social-grid">
-            <a href="https://www.instagram.com/florian.b93tsz" target="_blank" class="social-card hover-target">
-                <h4>Instagram</h4>
-                <p>@florian.b93tsz</p>
-            </a>
-            <a href="https://www.linkedin.com/in/florian-bonnet-b82018198/" target="_blank" class="social-card hover-target">
-                <h4>LinkedIn</h4>
-                <p>Florian Bonnet</p>
-            </a>
+        <div class="container">
+            <h1 class="hero-title">FLORIAN B.<span class="red">Graphiste</span></h1>
+            <p class="hero-tagline">Les pixels sont nos atomes créatifs</p>
+            <button class="hero-cta" onclick="document.getElementById('reveal-tel').click(); window.location.href='#contact'">Je veux être appelé</button>
         </div>
     </section>
 
     <div class="marquee-wrapper">
-        <div class="marquee">
-            <span>Photoshop</span><span>Illustrator</span><span>After Effects</span><span>Premiere Pro</span><span>InDesign</span><span>Branding</span><span>Cover Art</span><span>UI/UX</span>
+        <div class="marquee-content">
+            <span><i>•</i> Branding</span><span><i>•</i> Communication Digitale</span><span><i>•</i> Communication Print</span><span><i>•</i> IA Générative</span><span><i>•</i> UI/UX Design</span><span><i>•</i> Montage Vidéo</span><span><i>•</i> Motion Design</span><span><i>•</i> Photographie</span><span><i>•</i> Figma</span><span><i>•</i> Photoshop</span>
         </div>
     </div>
 
-    <section id="contact" class="contact">
-        <h2 class="section-title" style="border:none;">Travaillons ensemble</h2>
-        <div class="reveal-container">
-            <div class="reveal-box hover-target" onclick="handleReveal(this)">
-                <span class="info-label">DÉVOILER L'E-MAIL</span>
-                <span class="info-hidden">florian.bonnet17@hotmail.fr</span>
+    <section id="work" class="work">
+        <div class="container">
+            <h2 class="section-title">Sélection Projets</h2>
+            <div class="projects-container">
+                <!-- COURTEPAILLE -->
+                <div class="project-showcase" onclick="openModal('courtepaille-modal')">
+                    <div class="project-header">
+                        <h3 class="project-title">Courtepaille</h3>
+                        <span class="project-type">Branding & Design</span>
+                    </div>
+                    <div class="project-gallery">
+                        <img src="courtepaille-facade-cover.jpg" alt="Courtepaille facade">
+                        <img src="courtepaille-branding-board.jpg" alt="Courtepaille branding">
+                    </div>
+                </div>
+
+                <!-- BNP PARIBAS -->
+                <div class="project-showcase" onclick="openModal('bnp-modal')">
+                    <div class="project-header">
+                        <h3 class="project-title">BNP Paribas</h3>
+                        <span class="project-type">Branding</span>
+                    </div>
+                    <div class="project-gallery">
+                        <img src="bnp_logo_vert.jpg" alt="BNP logo">
+                        <img src="bnp_mockup_cb.jpg" alt="BNP mockup">
+                    </div>
+                </div>
+
+                <!-- OOFTI.FR -->
+                <div class="project-showcase" onclick="openModal('oofti-modal')">
+                    <div class="project-header">
+                        <h3 class="project-title">oofti.fr</h3>
+                        <span class="project-type">Branding & Digital</span>
+                    </div>
+                    <div class="project-gallery">
+                        <img src="oofti_logo_couleurs.jpg" alt="oofti logo">
+                        <img src="oofti_mockup_smartphone.jpg" alt="oofti smartphone">
+                    </div>
+                </div>
+
+                <!-- BASICFIT -->
+                <div class="project-showcase" onclick="openModal('basicfit-modal')">
+                    <div class="project-header">
+                        <h3 class="project-title">BasicFit</h3>
+                        <span class="project-type">Branding</span>
+                    </div>
+                    <div class="project-gallery">
+                        <img src="basicfit_logo_orange.jpg" alt="BasicFit logo">
+                        <img src="basicfit_mockup_enseigne.jpg" alt="BasicFit mockup">
+                    </div>
+                </div>
+
+                <!-- FINISH -->
+                <div class="project-showcase" onclick="openModal('finish-modal')">
+                    <div class="project-header">
+                        <h3 class="project-title">Finish</h3>
+                        <span class="project-type">Packaging Design</span>
+                    </div>
+                    <div class="project-gallery">
+                        <img src="finish_mockup_face.jpg" alt="Finish packaging">
+                        <img src="finish_presentation.jpg" alt="Finish presentation">
+                    </div>
+                </div>
+
+                <!-- MLLE PITCH -->
+                <div class="project-showcase" onclick="openModal('mllepitch-modal')">
+                    <div class="project-header">
+                        <h3 class="project-title">MllePitch</h3>
+                        <span class="project-type">Campagne</span>
+                    </div>
+                    <div class="project-gallery">
+                        <img src="mllepitch_visuel_1.jpg" alt="MllePitch visuel">
+                        <img src="mllepitch_mockup_metro.jpg" alt="MllePitch metro">
+                    </div>
+                </div>
+
+                <!-- COVER ART -->
+                <div class="project-showcase" onclick="openModal('cover-modal')">
+                    <div class="project-header">
+                        <h3 class="project-title">Cover Art</h3>
+                        <span class="project-type">Art Direction</span>
+                    </div>
+                    <div class="project-gallery">
+                        <img src="BADARA---INDUSTRI-VF1.JPG" alt="Badara cover">
+                        <img src="pression cover vf.png" alt="Cover art">
+                    </div>
+                </div>
+
+                <!-- PORTFOLIO PHOTO -->
+                <div class="project-showcase" onclick="openModal('photo-modal')">
+                    <div class="project-header">
+                        <h3 class="project-title">Portfolio</h3>
+                        <span class="project-type">Photographie</span>
+                    </div>
+                    <div class="project-gallery">
+                        <img src="Florian_Projet_Img_40.jpg" alt="Portfolio photo">
+                        <img src="Florian_Projet_Img_10.jpg" alt="Portfolio photo 2">
+                    </div>
+                </div>
             </div>
-            <div id="contact-btn" class="reveal-box hover-target" onclick="handleReveal(this)">
-                <span class="info-label">DÉVOILER LE NUMÉRO</span>
-                <span class="info-hidden">+33 6 46 20 78 25</span>
+        </div>
+    </section>
+
+    <section id="resume" class="resume-section">
+        <div class="container">
+            <h2 class="section-title">Mon Parcours</h2>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 4rem;">
+                <div>
+                    <h3 style="color: var(--accent); margin-bottom: 2.5rem; font-size: 0.9rem; letter-spacing: 3px; font-weight: 800; text-transform: uppercase;">EXPÉRIENCES</h3>
+                    <div style="margin-bottom: 3rem; border-left: 2px solid var(--border); padding-left: 2rem;">
+                        <span style="color: var(--text-muted); font-size: 0.9rem;">Octobre 2024 — Aujourd'hui</span>
+                        <h4 style="font-family: var(--font-display); font-size: 1.6rem; margin: 0.4rem 0; font-weight: 800; text-transform: uppercase; letter-spacing: -0.5px;">Graphiste</h4>
+                        <p>oofti.fr | Montreuil</p>
+                    </div>
+                    <div style="margin-bottom: 3rem; border-left: 2px solid var(--border); padding-left: 2rem;">
+                        <span style="color: var(--text-muted); font-size: 0.9rem;">Avril 2020 — Aujourd'hui</span>
+                        <h4 style="font-family: var(--font-display); font-size: 1.6rem; margin: 0.4rem 0; font-weight: 800; text-transform: uppercase; letter-spacing: -0.5px;">Fondateur / CM</h4>
+                        <p>DailyRapFrance | Neuilly-Plaisance</p>
+                    </div>
+                    <div style="margin-bottom: 3rem; border-left: 2px solid var(--border); padding-left: 2rem;">
+                        <span style="color: var(--text-muted); font-size: 0.9rem;">Septembre 2023 — Février 2024</span>
+                        <h4 style="font-family: var(--font-display); font-size: 1.6rem; margin: 0.4rem 0; font-weight: 800; text-transform: uppercase; letter-spacing: -0.5px;">Chef de Projet</h4>
+                        <p>Instincts Productions | Paris</p>
+                    </div>
+                </div>
+                <div>
+                    <h3 style="color: var(--accent); margin-bottom: 2.5rem; font-size: 0.9rem; letter-spacing: 3px; font-weight: 800; text-transform: uppercase;">FORMATIONS</h3>
+                    <div style="margin-bottom: 3rem; border-left: 2px solid var(--border); padding-left: 2rem;">
+                        <span style="color: var(--text-muted); font-size: 0.9rem;">2021 — 2024</span>
+                        <h4 style="font-family: var(--font-display); font-size: 1.6rem; margin: 0.4rem 0; font-weight: 800; text-transform: uppercase; letter-spacing: -0.5px;">Bachelor Design graphique</h4>
+                        <p>MJM Graphic Design | Mention Très Bien</p>
+                    </div>
+                    <div style="margin-bottom: 3rem; border-left: 2px solid var(--border); padding-left: 2rem;">
+                        <span style="color: var(--text-muted); font-size: 0.9rem;">2018 — 2021</span>
+                        <h4 style="font-family: var(--font-display); font-size: 1.6rem; margin: 0.4rem 0; font-weight: 800; text-transform: uppercase; letter-spacing: -0.5px;">Bac Pro Visuelle</h4>
+                        <p>Claude Nicolas Ledoux | EBTP</p>
+                    </div>
+                </div>
+            </div>
+            <div style="display:flex; justify-content:center; margin-top:4rem;">
+                <a href="https://drive.usercontent.google.com/u/0/uc?id=12B9RhtuKZW0O7z9iw8VuoWPpgFD4v9l7&export=download" target="_blank" style="padding: 1.2rem 3.5rem; border: 2px solid #fff; border-radius: 100px; font-family: var(--font-display); font-weight: 800; text-transform: uppercase;">Télécharger le CV</a>
+            </div>
+        </div>
+    </section>
+
+    <section id="socials" class="social-section">
+        <div class="container">
+            <h2 class="section-title">Connectons-nous</h2>
+            <div class="social-grid">
+                <a href="https://www.instagram.com/florian.b93tsz" target="_blank" class="social-card">
+                    <span class="social-icon">📸</span>
+                    <h4>Instagram</h4>
+                    <span>@florian.b93tsz</span>
+                </a>
+                <a href="https://www.linkedin.com/in/florian-bonnet-b82018198/" target="_blank" class="social-card">
+                    <span class="social-icon">💼</span>
+                    <h4>LinkedIn</h4>
+                    <span>Florian Bonnet</span>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <section id="contact" class="contact">
+        <div class="container">
+            <h2 class="section-title">Travaillons ensemble</h2>
+            <div class="contact-grid">
+                <div class="contact-card" onclick="revealContact(this, 'florian.bonnet17@hotmail.fr')">
+                    <span class="contact-label">E-MAIL</span>
+                    <span class="contact-info-placeholder">DÉVOILER L'ADRESSE</span>
+                </div>
+                <div class="contact-card" id="reveal-tel" onclick="revealContact(this, '+33 6 46 20 78 25')">
+                    <span class="contact-label">TÉLÉPHONE</span>
+                    <span class="contact-info-placeholder">DÉVOILER LE NUMÉRO</span>
+                </div>
             </div>
         </div>
     </section>
 
     <footer>
-        <div class="footer-brand">
-            <div class="footer-logo">FLORIAN B<span>.</span></div>
-            <p>Directeur Artistique & Graphiste basé à Paris. Création d'identités fortes.</p>
-        </div>
-        <div class="footer-col">
-            <h5>Navigation</h5>
-            <ul>
-                <li><a href="#work">Projets</a></li>
-                <li><a href="#resume">Parcours</a></li>
-                <li><a href="#contact">Contact</a></li>
-            </ul>
-        </div>
-        <div class="footer-col">
-            <h5>Réseaux</h5>
-            <ul>
-                <li><a href="https://www.instagram.com/florian.b93tsz" target="_blank">Instagram</a></li>
-                <li><a href="https://www.linkedin.com/in/florian-bonnet-b82018198/" target="_blank">LinkedIn</a></li>
-            </ul>
-        </div>
-        <div class="footer-bottom">
-            <div>© 2026 — Florian Bonnet</div>
-            <div>Basé à Paris</div>
-            <div>Droits d'image réservés — Reproduction interdite</div>
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-col">
+                    <div class="footer-logo">FLORIAN B<span style="color: var(--accent);">.</span></div>
+                    <p style="opacity: 0.6; line-height: 1.7; max-width: 320px;">Directeur Artistique & Graphiste basé à Paris.</p>
+                </div>
+                <div class="footer-col">
+                    <h5>NAVIGATION</h5>
+                    <ul><li><a href="#work">Projets</a></li><li><a href="#resume">Parcours</a></li><li><a href="#contact">Contact</a></li></ul>
+                </div>
+                <div class="footer-col">
+                    <h5>RÉSEAUX</h5>
+                    <ul><li><a href="https://www.instagram.com/florian.b93tsz" target="_blank">Instagram</a></li><li><a href="https://www.linkedin.com/in/florian-bonnet-b82018198/" target="_blank">LinkedIn</a></li></ul>
+                </div>
+            </div>
+            <div class="footer-bottom"><div>© 2026 — FLORIAN BONNET</div><div>BASÉ À PARIS</div></div>
         </div>
     </footer>
 
+    <!-- MODALES PROJETS -->
     <div class="modal-overlay" id="courtepaille-modal">
         <div class="modal-content">
             <button class="modal-close" onclick="closeModal('courtepaille-modal')">&times;</button>
-            <div class="modal-header"><h2 style="font-family: var(--font-display); margin-bottom: 2rem;">Courtepaille Branding</h2></div>
+            <h2>Courtepaille — Restaurant Branding</h2>
+            <p style="color: var(--text-muted); margin-bottom: 2rem;">Identité visuelle complète pour la chaîne de restaurants Courtepaille : de la façade au menu, en passant par le merchandising et l'ambiance intérieure.</p>
             <div class="gallery-grid">
-                <img src="courtepaille-identite-visuelle.jpg">
-                <img src="courtepaille-facade-cover.jpg">
-                <img src="courtepaille-packaging-mockup.jpg">
-                <img src="courtepaille-branding-board.jpg">
-                <img src="courtepaille-affiche-promo.jpg">
-                <img src="courtepaille-interieur-design.jpg">
-                <img src="courtepaille-ambiance-lumineuse.jpg">
-                <img src="courtepaille-campagne-burger.jpg">
-                <img src="courtepaille-menu-digital.jpg">
-                <img src="courtepaille-tablier-staff.jpg">
-                <img src="courtepaille-salle-restaurant.jpg">
-                <img src="courtepaille-menu-print-1.jpg">
-                <img src="courtepaille-menu-print-2.jpg">
-                <img src="courtepaille-art-table-1.jpg">
-                <img src="courtepaille-art-table-2.jpg">
+                <img src="courtepaille-facade-cover.jpg" alt="Facade">
+                <img src="courtepaille-affiche-promo.jpg" alt="Affiche promo">
+                <img src="courtepaille-ambiance-lumineuse.jpg" alt="Ambiance">
+                <img src="courtepaille-art-table-1.jpg" alt="Art table 1">
+                <img src="courtepaille-art-table-2.jpg" alt="Art table 2">
+                <img src="courtepaille-branding-board.jpg" alt="Branding board">
+                <img src="courtepaille-campagne-burger.jpg" alt="Campagne burger">
+                <img src="courtepaille-identite-visuelle.jpg" alt="Identité visuelle">
+                <img src="courtepaille-interieur-design.jpg" alt="Intérieur">
+                <img src="courtepaille-menu-digital.jpg" alt="Menu digital">
+                <img src="courtepaille-menu-print-1.jpg" alt="Menu print 1">
+                <img src="courtepaille-menu-print-2.jpg" alt="Menu print 2">
+                <img src="courtepaille-packaging-mockup.jpg" alt="Packaging">
+                <img src="courtepaille-salle-restaurant.jpg" alt="Salle">
+                <img src="courtepaille-tablier-staff.jpg" alt="Tablier staff">
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="bnp-modal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal('bnp-modal')">&times;</button>
+            <h2>BNP Paribas — Brand Evolution</h2>
+            <p style="color: var(--text-muted); margin-bottom: 2rem;">Modernisation de l'identité BNP Paribas avec une approche contemporaine et dynamique tout en préservant la force du logo historique.</p>
+            <div class="gallery-grid">
+                <img src="bnp_logo_blanc.jpg" alt="Logo blanc">
+                <img src="bnp_logo_vert.jpg" alt="Logo vert">
+                <img src="bnp_mockup_app.jpg" alt="App mockup">
+                <img src="bnp_mockup_cb.jpg" alt="Carte bancaire">
+                <img src="bnp_mockup_enseigne.jpg" alt="Enseigne">
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="oofti-modal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal('oofti-modal')">&times;</button>
+            <h2>oofti.fr — E-commerce Brand</h2>
+            <p style="color: var(--text-muted); margin-bottom: 2rem;">Création de l'identité complète de la plateforme e-commerce oofti.fr : logo, typographie, système de design et déclinaisons digitales.</p>
+            <div class="gallery-grid">
+                <img src="oofti_logo_comparatif.jpg" alt="Logo comparatif">
+                <img src="oofti_logo_couleurs.jpg" alt="Logo couleurs">
+                <img src="oofti_mockup_cartes.jpg" alt="Cartes mockup">
+                <img src="oofti_mockup_smartphone.jpg" alt="Smartphone">
+                <img src="oofti_reseaux_posts.jpg" alt="Posts réseaux">
+                <img src="oofti_reseaux_stories.jpg" alt="Stories">
+                <img src="oofti_typo_detail.jpg.jpg" alt="Typographie">
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="basicfit-modal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal('basicfit-modal')">&times;</button>
+            <h2>BasicFit — Fitness Branding</h2>
+            <p style="color: var(--text-muted); margin-bottom: 2rem;">Identité sportive et énergique pour la chaîne de fitness BasicFit avec une approche moderne et dynamique.</p>
+            <div class="gallery-grid">
+                <img src="basicfit_comparaison.jpg" alt="Comparaison">
+                <img src="basicfit_logo_orange.jpg" alt="Logo orange">
+                <img src="basicfit_mockup_enseigne.jpg" alt="Enseigne">
+                <img src="basicfit_mockup_halteres.jpg" alt="Haltères mockup">
+                <img src="basicfit_planche_typo.jpg" alt="Typographie">
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="finish-modal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal('finish-modal')">&times;</button>
+            <h2>Finish — Packaging Design</h2>
+            <p style="color: var(--text-muted); margin-bottom: 2rem;">Design d'emballage premium avec structure innovante et système d'ouverture intuitif.</p>
+            <div class="gallery-grid">
+                <img src="finish_comparaison.jpg" alt="Comparaison">
+                <img src="finish_coulisses.jpg" alt="Coulisses">
+                <img src="finish_deplié.jpg" alt="Déplié">
+                <img src="finish_gabarit.jpg" alt="Gabarit">
+                <img src="finish_mockup_cote.jpg" alt="Côté">
+                <img src="finish_mockup_dos.jpg" alt="Dos">
+                <img src="finish_mockup_face.jpg" alt="Face">
+                <img src="finish_mockup_ouvert_1.jpg" alt="Ouvert 1">
+                <img src="finish_mockup_ouvert_2.jpg" alt="Ouvert 2">
+                <img src="finish_presentation.jpg" alt="Présentation">
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="mllepitch-modal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal('mllepitch-modal')">&times;</button>
+            <h2>MllePitch — Campagne Urbaine</h2>
+            <p style="color: var(--text-muted); margin-bottom: 2rem;">Campagne de communication urbaine multiformat avec déclinaisons métro, abribus et street marketing.</p>
+            <div class="gallery-grid">
+                <img src="mllepitch_mockup_abribus.jpg" alt="Abribus">
+                <img src="mllepitch_mockup_affichage.jpg" alt="Affichage">
+                <img src="mllepitch_mockup_metro.jpg" alt="Métro">
+                <img src="mllepitch_mockup_panneau.jpg" alt="Panneau">
+                <img src="mllepitch_visuel_1.jpg" alt="Visuel 1">
+                <img src="mllepitch_visuel_2.jpg" alt="Visuel 2">
+                <img src="mllepitch_visuel_3.jpg" alt="Visuel 3">
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="cover-modal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal('cover-modal')">&times;</button>
+            <h2>Cover Art — Direction Artistique</h2>
+            <p style="color: var(--text-muted); margin-bottom: 2rem;">Direction artistique et conception de covers d'albums pour artistes rap. Univers visuels percutants et mémorables.</p>
+            <div class="gallery-grid">
+                <img src="BADARA - CHAQUE FOIS.png" alt="Badara">
+                <img src="cover-industrie-badara.jpg" alt="Badara Industrie">
+                <img src="BADARA-VIDAL-COVER-V1.jpg" alt="Badara Vidal">
+                <img src="BENEF - IA COVER VF2.png" alt="Benef IA">
+                <img src="BENEF - NO LIMIT.jpg" alt="Benef No Limit">
+                <img src="BENEF COVER TOLERANCE 2.png" alt="Benef Tolérance">
+                <img src="BENEF-MAFIA-ITALIENNE-v2.jpg" alt="Benef Mafia">
+                <img src="Badara - Mini moi cover v3.png" alt="Badara Mini Moi">
+                <img src="COVER LA MEME BADARA.jpg" alt="La même Badara">
+                <img src="COVER-LE-TEMPS-BENEF.jpg" alt="Le temps Benef">
+                <img src="Cover BADARA - ESPRIT.jpg" alt="Badara Esprit">
+                <img src="CoverBENEFToleranceZéro" alt="Benef Tolérance Zéro">
+                <img src="cover badara fuis vf rs.png" alt="Badara Fuis">
+                <img src="JAYCE-NOUCHI-FROM-USA-TRACKLIST.jpg" alt="Jayce Nouchi Tracklist">
+                <img src="JAYCE-NOUCHI-FROM-USA-V1.jpg" alt="Jayce Nouchi V1">
+                <img src="JAYCE-NOUCHI-FROM-USA-V4.jpg" alt="Jayce Nouchi V4">
+                <img src="modele-benef-vf.jpg" alt="Modèle Benef">
+                <img src="pression cover vf.png" alt="Pression Cover">
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="photo-modal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal('photo-modal')">&times;</button>
+            <h2>Portfolio — Photographies</h2>
+            <p style="color: var(--text-muted); margin-bottom: 2rem;">Sélection de photographies du portfolio incluant portraits, reportages et photographie de produits.</p>
+            <div class="gallery-grid">
+                <img src="Florian_Projet_Img_2.jpg" alt="Portfolio">
+                <img src="Florian_Projet_Img_3.jpg" alt="Portfolio">
+                <img src="Florian_Projet_Img_4.jpg" alt="Portfolio">
+                <img src="Florian_Projet_Img_5.jpg" alt="Portfolio">
+                <img src="Florian_Projet_Img_6.jpg" alt="Portfolio">
+                <img src="Florian_Projet_Img_7.jpg" alt="Portfolio">
+                <img src="Florian_Projet_Img_8.jpg" alt="Portfolio">
+                <img src="Florian_Projet_Img_9.jpg" alt="Portfolio">
+                <img src="Florian_Projet_Img_10.jpg" alt="Portfolio">
+                <img src="Florian_Projet_Img_11.jpg" alt="Portfolio">
+                <img src="Florian_Projet_Img_12.jpg" alt="Portfolio">
+                <img src="Florian_Projet_Img_13.jpg" alt="Portfolio">
+                <img src="Florian_Projet_Img_14.jpg" alt="Portfolio">
+                <img src="Florian_Projet_Img_15.jpg" alt="Portfolio">
+                <img src="Florian_Projet_Img_16.jpg" alt="Portfolio">
+                <img src="Florian_Projet_Img_17.jpg" alt="Portfolio">
+                <img src="Florian_Projet_Img_18.jpg" alt="Portfolio">
+                <img src="Florian_Projet_Img_19.jpg" alt="Portfolio">
+                <img src="Florian_Projet_Img_20.jpg" alt="Portfolio">
+                <img src="Florian_Projet_Img_21.jpg" alt="Portfolio">
+                <img src="Florian_Projet_Img_22.jpg" alt="Portfolio">
+                <img src="Florian_Projet_Img_23.jpg" alt="Portfolio">
+                <img src="Florian_Projet_Img_24.jpg" alt="Portfolio">
+                <img src="Florian_Projet_Img_25.jpg" alt="Portfolio">
+                <img src="Florian_Projet_Img_26.jpg" alt="Portfolio">
+                <img src="Florian_Projet_Img_27.jpg" alt="Portfolio">
+                <img src="Florian_Projet_Img_28.jpg" alt="Portfolio">
+                <img src="Florian_Projet_Img_29.jpg" alt="Portfolio">
+                <img src="Florian_Projet_Img_30.jpg" alt="Portfolio">
+                <img src="Florian_Projet_Img_31.jpg" alt="Portfolio">
+                <img src="Florian_Projet_Img_32.jpg" alt="Portfolio">
+                <img src="Florian_Projet_Img_33.jpg" alt="Portfolio">
+                <img src="Florian_Projet_Img_34.jpg" alt="Portfolio">
+                <img src="Florian_Projet_Img_35.jpg" alt="Portfolio">
+                <img src="Florian_Projet_Img_36.jpg" alt="Portfolio">
+                <img src="Florian_Projet_Img_37.jpg" alt="Portfolio">
+                <img src="Florian_Projet_Img_38.jpg" alt="Portfolio">
+                <img src="Florian_Projet_Img_39.jpg" alt="Portfolio">
+                <img src="Florian_Projet_Img_40.jpg" alt="Portfolio">
+                <img src="Florian_Projet_Img_41.jpg" alt="Portfolio">
+                <img src="Florian_Projet_Img_42.jpg" alt="Portfolio">
+                <img src="Florian_Projet_Img_43.jpg" alt="Portfolio">
+                <img src="Florian_Projet_Img_44.jpg" alt="Portfolio">
+                <img src="Florian_Projet_Img_45.jpg" alt="Portfolio">
+                <img src="Florian_Projet_Img_46.jpg" alt="Portfolio">
+                <img src="Florian_Projet_Img_47.jpg" alt="Portfolio">
             </div>
         </div>
     </div>
 
     <script>
-        function toggleMenu() { document.getElementById('burgerBtn').classList.toggle('active'); document.getElementById('mobileNav').classList.toggle('active'); document.body.classList.toggle('modal-open'); }
+        window.onload = () => { setTimeout(() => { document.getElementById('welcomeModal').classList.add('active'); document.body.classList.add('modal-open'); }, 800); };
+        function closeWelcome() { document.getElementById('welcomeModal').classList.remove('active'); document.body.classList.remove('modal-open'); }
+        function submitPhone() { alert("C'est noté !"); closeWelcome(); }
         function openModal(id) { document.getElementById(id).classList.add('active'); document.body.classList.add('modal-open'); }
         function closeModal(id) { document.getElementById(id).classList.remove('active'); document.body.classList.remove('modal-open'); }
-        function handleReveal(el) { el.classList.add('active'); }
+        
+        function revealContact(element, info) {
+            if (!element.classList.contains('revealed')) {
+                element.classList.add('revealed');
+                const placeholder = element.querySelector('.contact-info-placeholder');
+                placeholder.innerHTML = `<span class="contact-info">${info}</span>`;
+            }
+        }
+
         const cursor = document.getElementById('cursor');
-        document.addEventListener('mousemove', (e) => { cursor.style.left = e.clientX + 'px'; cursor.style.top = e.clientY + 'px'; });
-        window.addEventListener('scroll', () => { const n = document.getElementById('navbar'); if (window.scrollY > 50) n.classList.add('scrolled'); else n.classList.remove('scrolled'); });
+        document.addEventListener('mousemove', e => { if(cursor) { cursor.style.left = e.clientX + 'px'; cursor.style.top = e.clientY + 'px'; } });
+        
+        window.addEventListener('scroll', () => {
+            const nav = document.getElementById('navbar');
+            if (window.scrollY > 80) nav.classList.add('scrolled'); else nav.classList.remove('scrolled');
+        });
+
+        document.querySelectorAll('a, button, .project-showcase, .social-card, .contact-card').forEach(el => {
+            el.addEventListener('mouseenter', () => cursor.classList.add('hovered'));
+            el.addEventListener('mouseleave', () => cursor.classList.remove('hovered'));
+        });
     </script>
 </body>
 </html>
