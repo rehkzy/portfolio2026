@@ -79,11 +79,22 @@
         .nav-links a:hover { opacity: 1; color: var(--accent) !important; }
 
         .hero { height: 100vh; display: flex; align-items: center; position: relative; width: 100%; overflow: hidden; padding-top: 80px; }
-        .hero::before { 
-            content: ""; position: absolute; inset: 0; 
-            background: linear-gradient(to right, rgba(10,10,10,0.9) 30%, rgba(10,10,10,0.3) 50%, transparent 75%), url('IMG_9414.jpg'); 
-            background-size: cover; background-position: center right; opacity: 1; z-index: -1; 
-        }
+       .hero::before { 
+    content: ""; position: absolute; inset: 0; 
+    background: linear-gradient(to right, rgba(10,10,10,0.8) 0%, rgba(10,10,10,0.2) 35%, transparent 60%), url('IMG_9414.jpg');
+    background-size: cover; background-position: center right; opacity: 1; z-index: -1; 
+} 
+    background-size: cover; background-position: center right; opacity: 1; z-index: -1; 
+}
+
+@media (max-width: 768px) {
+    .hero::before {
+        background: linear-gradient(180deg, rgba(10,10,10,0.6) 0%, rgba(10,10,10,0.3) 40%, rgba(10,10,10,0.15) 70%, transparent 95%), url('IMG_9414.jpg');
+        background-size: cover;
+        background-position: center center;
+        background-attachment: fixed;
+    }
+}
         .hero .container { width: 100%; position: relative; z-index: 1; }
         .hero-title { font-family: var(--font-display); font-size: clamp(2rem, 8vw, 4.5rem); font-weight: 800; line-height: 1.1; text-transform: uppercase; letter-spacing: -1px; }
         .hero-title span.red { color: var(--accent); display: inline; }
@@ -457,8 +468,8 @@
                         <span class="project-type">Art Direction</span>
                     </div>
                     <div class="project-gallery">
-                        <img src="BADARA---INDUSTRI-VF1.JPG" alt="Cover">
-                        <img src="Cover BENEF - Tolérance Zéro.png" alt="Cover">
+                        <img src="industrie.jpg" alt="Cover">
+                        <img src="BADARA-VIDAL-COVER-V1.jpg" alt="Cover">
                     </div>
                 </div>
 
@@ -753,11 +764,11 @@
             <p class="modal-description">Direction artistique et conception de covers d'albums pour artistes rap.</p>
             <div class="gallery-grid">
                 <img src="BADARA - CHAQUE FOIS.png" alt="Badara">
-                <img src="BADARA---INDUSTRI-VF1.JPG" alt="Industrie">
+                <img src="industrie.jpg" alt="Industrie">
                 <img src="BADARA-VIDAL-COVER-V1.jpg" alt="Vidal">
                 <img src="BENEF - IA COVER VF2.png" alt="Benef IA">
                 <img src="BENEF - NO LIMIT.jpg" alt="No Limit">
-                <img src="Cover BENEF - Tolérance Zéro.png" alt="Tolérance">
+                <img src="tolzero.png" alt="Tolerance">
                 <img src="BENEF-MAFIA-ITALIENNE-v2.jpg" alt="Mafia">
                 <img src="Badara - Mini moi cover v3.png" alt="Mini Moi">
                 <img src="COVER LA MEME BADARA.jpg" alt="La Même">
